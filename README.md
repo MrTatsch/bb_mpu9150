@@ -1,13 +1,12 @@
-BB-MPU9150
+phoenix_imu
 ===========
 
 This repository creates a ROS package that publishes the Invensense MPU-9150 data into a ROS topic.
 
-<img src="https://raw.github.com/vmayoral/beagle-ros/master/docs/images/bb_mpu9150_bb.png" width="400px" />
-
 ----
 
 (The code uses the [linux-mpu9150](https://github.com/Pansenti/linux-mpu9150) driver.)
+This packages was forked from [mpu9150_node](https://github.com/vmayoral/bb_mpu9150/blob/master/src/mpu9150_node.cpp)
 
 ---
 

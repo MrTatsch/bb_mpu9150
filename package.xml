@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package>
-  <name>bb_mpu9150</name>
+  <name>phoenix_imu</name>
   <version>0.1.0</version>
-  <description>The mpu9150 package for the BeagleBone</description>
+  <description>The imu package for the phoenix quadrocopter</description>
 
-  <maintainer email="v.mayoralv@gmail.com">Víctor Mayoral Vilches</maintainer>
+  <maintainer email="tatsch@gmail.com">Julian Tatsch</maintainer>
   
   <license>MIT</license>
 

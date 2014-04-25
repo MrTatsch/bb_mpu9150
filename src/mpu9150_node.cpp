@@ -15,6 +15,8 @@
  */
 #include "ros/ros.h"
 #include "std_msgs/String.h"
+#include "geometry_msgs/Quaternion.h"
+#include "visualization_msgs/Marker.h"
 #include <sstream>
 
 #include <stdio.h>
@@ -74,6 +76,8 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "mpu9150_node");
   ros::NodeHandle n;
   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("imu_euler", 1000);
+  ros::Publisher quat_pub = n.advertise<geometry_msgs::Quaternion>("imu_quat", 1000);
+  ros::Publisher vis_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 0 );
   ros::Rate loop_rate(10);
 
   /* Init the sensor the values are hardcoded at the local_defaults.h file */
@@ -192,6 +196,8 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
     std_msgs::String msg;
+    geometry_msgs::Quaternion quat_msg;
+    visualization_msgs::Marker marker;
     std::stringstream ss;
 
 	if (mpu9150_read(&mpu) == 0) {
@@ -200,16 +206,43 @@ int main(int argc, char **argv)
 	    ss << "\rX: " << mpu.fusedEuler[VEC3_X] * RAD_TO_DEGREE <<
             " Y: " << mpu.fusedEuler[VEC3_Y] * RAD_TO_DEGREE <<
 			" Z: " << mpu.fusedEuler[VEC3_Z] * RAD_TO_DEGREE << count;
-
+        
 		// printf_fused_quaternions(&mpu);
 	    // print_calibrated_accel(&mpu);
 	    // print_calibrated_mag(&mpu);
 
-       msg.data = ss.str();
-       ROS_INFO("ROS_INFO: %s\n", msg.data.c_str());
+        msg.data = ss.str();
+        quat_msg.x = mpu.fusedQuat[QUAT_X];
+        quat_msg.y = mpu.fusedQuat[QUAT_Y];
+        quat_msg.z = mpu.fusedQuat[QUAT_Z];
+        quat_msg.w = mpu.fusedQuat[QUAT_W];
+        marker.header.frame_id = "base_link";
+        marker.header.stamp = ros::Time();
+        //marker.ns = "my_namespace";
+        marker.id = 0;
+        marker.type = visualization_msgs::Marker::ARROW;
+        marker.action = visualization_msgs::Marker::ADD;
+        marker.pose.position.x = 1;
+        marker.pose.position.y = 1;
+        marker.pose.position.z = 1;
+        marker.pose.orientation.x = mpu.fusedQuat[QUAT_X];
+        marker.pose.orientation.y = mpu.fusedQuat[QUAT_Y];
+        marker.pose.orientation.z = mpu.fusedQuat[QUAT_Z];
+        marker.pose.orientation.w = mpu.fusedQuat[QUAT_W];
+        marker.scale.x = 1;
+        marker.scale.y = 1;
+        marker.scale.z = 1;
+        marker.color.a = 1.0;
+        marker.color.r = 0.0;
+        marker.color.g = 1.0;
+        marker.color.b = 0.0;
+        
+        ROS_INFO("ROS_INFO: %s\n", msg.data.c_str());
 	}
 //	linux_delay_ms(loop_delay);
     chatter_pub.publish(msg);
+    quat_pub.publish(quat_msg);
+    vis_pub.publish(marker);
     ros::spinOnce();
     loop_rate.sleep();
     ++count;

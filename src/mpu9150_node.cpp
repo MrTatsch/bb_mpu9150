@@ -193,6 +193,8 @@ int main(int argc, char **argv)
    * a unique string for each message.
    */
   int count = 0;
+  uint32_t shape = visualization_msgs::Marker::ARROW;
+    
   while (ros::ok())
   {
     std_msgs::String msg;
@@ -218,24 +220,27 @@ int main(int argc, char **argv)
         quat_msg.w = mpu.fusedQuat[QUAT_W];
         marker.header.frame_id = "base_link";
         marker.header.stamp = ros::Time();
-        //marker.ns = "my_namespace";
+        //marker.ns = "basic_shapes";
         marker.id = 0;
-        marker.type = visualization_msgs::Marker::ARROW;
+        marker.type = shape;
         marker.action = visualization_msgs::Marker::ADD;
-        marker.pose.position.x = 1;
-        marker.pose.position.y = 1;
-        marker.pose.position.z = 1;
+        marker.pose.position.x = 0;
+        marker.pose.position.y = 0;
+        marker.pose.position.z = 0;
         marker.pose.orientation.x = mpu.fusedQuat[QUAT_X];
         marker.pose.orientation.y = mpu.fusedQuat[QUAT_Y];
         marker.pose.orientation.z = mpu.fusedQuat[QUAT_Z];
         marker.pose.orientation.w = mpu.fusedQuat[QUAT_W];
+        
         marker.scale.x = 1;
         marker.scale.y = 1;
         marker.scale.z = 1;
+        
         marker.color.a = 1.0;
         marker.color.r = 0.0;
         marker.color.g = 1.0;
         marker.color.b = 0.0;
+        marker.lifetime = ros::Duration();
         
         ROS_INFO("ROS_INFO: %s\n", msg.data.c_str());
 	}

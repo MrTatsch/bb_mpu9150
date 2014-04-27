@@ -1,4 +1,3 @@
 <launch>
 	<node name="imu" pkg="phoenix_imu" type="mpu9150_node"  output="screen" />
-    <node name="rviz" pkg="rviz" type="rviz" />
 </launch>

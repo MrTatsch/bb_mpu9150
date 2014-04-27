@@ -1,18 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  mpu9150_node.cpp
- *
- *    Description: ROS package that launches a node and publishes the Invensense MPU-9150 to a Topic  
- *
- *        Version:  1.0
- *        Created:  27/07/13 15:06:50
- *       Revision:  none
- *
- *         Author:  Víctor Mayoral Vilches <v.mayoralv@gmail.com>
- *
- * =====================================================================================
- */
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
 #include <sstream>
@@ -40,10 +25,6 @@
 
 int set_cal(int mag, char *cal_file);
 void read_loop(unsigned int sample_rate);
-void print_fused_euler_angles(mpudata_t *mpu);
-void print_fused_quaternion(mpudata_t *mpu);
-void print_calibrated_accel(mpudata_t *mpu);
-void print_calibrated_mag(mpudata_t *mpu);
 void register_sig_handler();
 void sigint_handler(int sig);
 
@@ -73,7 +54,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "imu_node");
   ros::NodeHandle n;
-  ros::Publisher imuPublisher = n.advertise<sensor_msgs::Imu>("imu_quat", 1000);
+  ros::Publisher imuPublisher = n.advertise<sensor_msgs::Imu>("imu", 1000);
   ros::Rate loop_rate(10);
 
   /* Init the sensor the values are hardcoded at the local_defaults.h file */
@@ -196,7 +177,7 @@ int main(int argc, char **argv)
 
 	if (mpu9150_read(&mpu) == 0) {
         
-        imu_msg.header.frame_id = frame_id="drone";
+        imu_msg.header.frame_id = "drone";
         imu_msg.header.stamp = ros::Time::now();
         
         imu_msg.orientation.x = mpu.fusedQuat[QUAT_X];
@@ -204,9 +185,9 @@ int main(int argc, char **argv)
         imu_msg.orientation.z = mpu.fusedQuat[QUAT_Z];
         imu_msg.orientation.w = mpu.fusedQuat[QUAT_W];
 
-        imu_msg.linear_acceleration.x = calibratedAccel[VEC3_X];
-        imu_msg.linear_acceleration.y = calibratedAccel[VEC3_Y];
-        imu_msg.linear_acceleration.z = calibratedAccel[VEC3_Z];
+        imu_msg.linear_acceleration.x = mpu.calibratedAccel[VEC3_X];
+        imu_msg.linear_acceleration.y = mpu.calibratedAccel[VEC3_Y];
+        imu_msg.linear_acceleration.z = mpu.calibratedAccel[VEC3_Z];
 
         imu_msg.angular_velocity.x = mpu.rawGyro[VEC3_X];
         imu_msg.angular_velocity.y = mpu.rawGyro[VEC3_Y];

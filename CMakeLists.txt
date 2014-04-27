@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(phoenix_imu)
 
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs geometry_msgs visualization_msgs )
 
 catkin_package(
    INCLUDE_DIRS 

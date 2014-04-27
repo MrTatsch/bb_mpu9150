@@ -218,9 +218,9 @@ int main(int argc, char **argv)
         quat_msg.y = mpu.fusedQuat[QUAT_Y];
         quat_msg.z = mpu.fusedQuat[QUAT_Z];
         quat_msg.w = mpu.fusedQuat[QUAT_W];
-        marker.header.frame_id = "base_link";
-        marker.header.stamp = ros::Time();
-        //marker.ns = "basic_shapes";
+        marker.header.frame_id = "/my_frame";
+        marker.header.stamp = ros::Time::now();
+        marker.ns = "basic_shapes";
         marker.id = 0;
         marker.type = shape;
         marker.action = visualization_msgs::Marker::ADD;
@@ -242,7 +242,7 @@ int main(int argc, char **argv)
         marker.color.b = 0.0;
         marker.lifetime = ros::Duration();
         
-        ROS_INFO("ROS_INFO: %s\n", msg.data.c_str());
+        //ROS_INFO("ROS_INFO: %s\n", msg.data.c_str());
 	}
 //	linux_delay_ms(loop_delay);
     chatter_pub.publish(msg);

@@ -14,9 +14,7 @@
  * =====================================================================================
  */
 #include "ros/ros.h"
-#include "std_msgs/String.h"
-#include "geometry_msgs/Quaternion.h"
-#include "visualization_msgs/Marker.h"
+#include "sensor_msgs/Imu.h"
 #include <sstream>
 
 #include <stdio.h>
@@ -73,11 +71,9 @@ void usage(char *argv_0)
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "mpu9150_node");
+  ros::init(argc, argv, "imu_node");
   ros::NodeHandle n;
-  ros::Publisher chatter_pub = n.advertise<std_msgs::String>("imu_euler", 1000);
-  ros::Publisher quat_pub = n.advertise<geometry_msgs::Quaternion>("imu_quat", 1000);
-  ros::Publisher vis_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 0 );
+  ros::Publisher imuPublisher = n.advertise<sensor_msgs::Imu>("imu_quat", 1000);
   ros::Rate loop_rate(10);
 
   /* Init the sensor the values are hardcoded at the local_defaults.h file */
@@ -193,107 +189,37 @@ int main(int argc, char **argv)
    * a unique string for each message.
    */
   int count = 0;
-  uint32_t shape = visualization_msgs::Marker::ARROW;
     
   while (ros::ok())
   {
-    std_msgs::String msg;
-    geometry_msgs::Quaternion quat_msg;
-    visualization_msgs::Marker marker;
-    std::stringstream ss;
+    sensor_msgs::Imu imu_msg;
 
 	if (mpu9150_read(&mpu) == 0) {
-		//print_fused_euler_angles(&mpu);
-	    //ss << "\rX: %0.0f Y: %0.0f Z: %0.0f        ",
-	    ss << "\rX: " << mpu.fusedEuler[VEC3_X] * RAD_TO_DEGREE <<
-            " Y: " << mpu.fusedEuler[VEC3_Y] * RAD_TO_DEGREE <<
-			" Z: " << mpu.fusedEuler[VEC3_Z] * RAD_TO_DEGREE << count;
         
-		// printf_fused_quaternions(&mpu);
-	    // print_calibrated_accel(&mpu);
-	    // print_calibrated_mag(&mpu);
+        imu_msg.header.frame_id = frame_id="drone";
+        imu_msg.header.stamp = ros::Time::now();
+        
+        imu_msg.orientation.x = mpu.fusedQuat[QUAT_X];
+        imu_msg.orientation.y = mpu.fusedQuat[QUAT_Y];
+        imu_msg.orientation.z = mpu.fusedQuat[QUAT_Z];
+        imu_msg.orientation.w = mpu.fusedQuat[QUAT_W];
 
-        msg.data = ss.str();
-        quat_msg.x = mpu.fusedQuat[QUAT_X];
-        quat_msg.y = mpu.fusedQuat[QUAT_Y];
-        quat_msg.z = mpu.fusedQuat[QUAT_Z];
-        quat_msg.w = mpu.fusedQuat[QUAT_W];
-        marker.header.frame_id = "/my_frame";
-        marker.header.stamp = ros::Time::now();
-        marker.ns = "basic_shapes";
-        marker.id = 0;
-        marker.type = shape;
-        marker.action = visualization_msgs::Marker::ADD;
-        marker.pose.position.x = 0;
-        marker.pose.position.y = 0;
-        marker.pose.position.z = 0;
-        marker.pose.orientation.x = mpu.fusedQuat[QUAT_X];
-        marker.pose.orientation.y = mpu.fusedQuat[QUAT_Y];
-        marker.pose.orientation.z = mpu.fusedQuat[QUAT_Z];
-        marker.pose.orientation.w = mpu.fusedQuat[QUAT_W];
+        imu_msg.linear_acceleration.x = calibratedAccel[VEC3_X];
+        imu_msg.linear_acceleration.y = calibratedAccel[VEC3_Y];
+        imu_msg.linear_acceleration.z = calibratedAccel[VEC3_Z];
+
+        imu_msg.angular_velocity.x = mpu.rawGyro[VEC3_X];
+        imu_msg.angular_velocity.y = mpu.rawGyro[VEC3_Y];
+        imu_msg.angular_velocity.z = mpu.rawGyro[VEC3_Z];
         
-        marker.scale.x = 1;
-        marker.scale.y = 1;
-        marker.scale.z = 1;
-        
-        marker.color.a = 1.0;
-        marker.color.r = 0.0;
-        marker.color.g = 1.0;
-        marker.color.b = 0.0;
-        marker.lifetime = ros::Duration();
-        
-        //ROS_INFO("ROS_INFO: %s\n", msg.data.c_str());
 	}
 //	linux_delay_ms(loop_delay);
-    chatter_pub.publish(msg);
-    quat_pub.publish(quat_msg);
-    vis_pub.publish(marker);
+    imuPublisher.publish(imu_msg);
     ros::spinOnce();
     loop_rate.sleep();
     ++count;
   }
   return 0;
-}
-
-void print_fused_euler_angles(mpudata_t *mpu)
-{
-	printf("\rX: %0.0f Y: %0.0f Z: %0.0f        ",
-			mpu->fusedEuler[VEC3_X] * RAD_TO_DEGREE, 
-			mpu->fusedEuler[VEC3_Y] * RAD_TO_DEGREE, 
-			mpu->fusedEuler[VEC3_Z] * RAD_TO_DEGREE);
-
-	fflush(stdout);
-}
-
-void print_fused_quaternions(mpudata_t *mpu)
-{
-	printf("\rW: %0.2f X: %0.2f Y: %0.2f Z: %0.2f        ",
-			mpu->fusedQuat[QUAT_W],
-			mpu->fusedQuat[QUAT_X],
-			mpu->fusedQuat[QUAT_Y],
-			mpu->fusedQuat[QUAT_Z]);
-
-	fflush(stdout);
-}
-
-void print_calibrated_accel(mpudata_t *mpu)
-{
-	printf("\rX: %05d Y: %05d Z: %05d        ",
-			mpu->calibratedAccel[VEC3_X], 
-			mpu->calibratedAccel[VEC3_Y], 
-			mpu->calibratedAccel[VEC3_Z]);
-
-	fflush(stdout);
-}
-
-void print_calibrated_mag(mpudata_t *mpu)
-{
-	printf("\rX: %03d Y: %03d Z: %03d        ",
-			mpu->calibratedMag[VEC3_X], 
-			mpu->calibratedMag[VEC3_Y], 
-			mpu->calibratedMag[VEC3_Z]);
-
-	fflush(stdout);
 }
 
 int set_cal(int mag, char *cal_file)

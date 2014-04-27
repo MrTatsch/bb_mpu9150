@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(phoenix_imu)
 
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs geometry_msgs visualization_msgs )
+find_package(catkin REQUIRED COMPONENTS roscpp rospy sensor_msgs )
 
 catkin_package(
    INCLUDE_DIRS 
@@ -25,11 +25,6 @@ include_directories(
 )
 
 #link_directories()
-
-
-# Test to verify simple ROS node
-add_executable(random src/random.cpp)
-target_link_libraries(random ${catkin_LIBRARIES} )
 
 # The MPU9150 node
 # Adds flags to the compiler command line for sources in the current directory and below.

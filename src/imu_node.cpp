@@ -54,8 +54,8 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "imu_node");
   ros::NodeHandle n;
-  ros::Publisher imuPublisher = n.advertise<sensor_msgs::Imu>("imu", 1000);
-  ros::Rate loop_rate(10);
+  ros::Publisher imuPublisher = n.advertise<sensor_msgs::Imu>("/phoenix/imu", 50);
+  ros::Rate loop_rate(50);
 
   /* Init the sensor the values are hardcoded at the local_defaults.h file */
     int opt, len;

@@ -28,7 +28,10 @@
 // the test apps, you can specify the defaults for your platform here.
 
 // RPi I2C bus 
-#define DEFAULT_I2C_BUS 1
+//#define DEFAULT_I2C_BUS 1
+
+// Radxa I2C bus
+#define DEFAULT_I2C_BUS 0
 
 // Gumstix Overo
 // #define DEFAULT_I2C_BUS 3
